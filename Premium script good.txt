@@ -1,29 +1,27 @@
---[[
-TRUE CHILL GUYS HUB v4.0 - ULTIMATE EDITION
-Optimized, Fixed, Upgraded GUI & Performance
-]]
+-- [[ TRUE CHILL GUYS HUB v4.0 - ULTIMATE EDITION (FULL FIXED & OPTIMIZED) ]] --
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
-local TweenService = game:GetService("TweenService")
+
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
+
 if getgenv().TrueChillGuys_Loaded then
-pcall(getgenv().TrueChillGuys_Unload)
+	pcall(getgenv().TrueChillGuys_Unload)
 end
 getgenv().TrueChillGuys_Loaded = true
+
 local Config = {
--- Combat
-AutoBlock = false,
-AutoParry = false,
-Supernova = false,
-AutoCounter = false,
-InstantBlackhole = false,
-AutoDownPunch = false,
-AutoBlackFlash = false,
--- Extra
+	AutoBlock = false,
+	AutoParry = false,
+	Supernova = false,
+	AutoCounter = false,
+	InstantBlackhole = false,
+	AutoDownPunch = false,
+	AutoBlackFlash = false,
+	
 	AutoRatio = true,
 	InfDash = false,
 	InfJump = false,
@@ -32,132 +30,132 @@ AutoBlackFlash = false,
 	AutoAqating = false,
 	FinalJudgementSpam = false,
 	
-	-- Visuals & Settings
 	ESPEnabled = false,
 	HitboxSize = 2,
 	SmartCamlock = false,
 	Invisible = false,
-	Noclip = false,
+	Noclip = true,
 	
 	BlockDist = 25,
 	ParryDist = 25,
 	SupernovaDist = 25,
 	CounterDist = 25,
-	BlockDelay = 0.4,
-	ParryDelay = 0.2,
-	SupernovaDelay = 0.3,
-	CounterDelay = 0.2,
-	MoveSpeed = 25,
+	BlockDelay = 0.3,
+	ParryDelay = 0.15,
+	SupernovaDelay = 0.2,
+	CounterDelay = 0.15,
 	DepthDistance = 35,
 }
+
 local connections = {}
 local smartLockedHRP = nil
 local alvoAtual = nil
 local jaMorreu = false
+
 local function track(conn)
-table.insert(connections, conn)
-return conn
+	table.insert(connections, conn)
+	return conn
 end
--- Safely get remotes with error handling
+
+-- Safely get block remotes
 local remoteSuccess, blockRE = pcall(function()
-return ReplicatedStorage:WaitForChild("Knit", 3)
-:WaitForChild("Knit", 3)
-:WaitForChild("Services", 3)
-:WaitForChild("BlockService", 3)
-:WaitForChild("RE", 3)
+	return ReplicatedStorage:WaitForChild("Knit", 5)
+		:WaitForChild("Knit", 5)
+		:WaitForChild("Services", 5)
+		:WaitForChild("BlockService", 5)
+		:WaitForChild("RE", 5)
 end)
-local activatedRE = blockRE and blockRE:WaitForChild("Activated", 3)
-local deactivatedRE = blockRE and blockRE:WaitForChild("Deactivated", 3)
+local activatedRE = blockRE and blockRE:WaitForChild("Activated", 5)
+local deactivatedRE = blockRE and blockRE:WaitForChild("Deactivated", 5)
+
 -- ==================== 1. PUNCH DOWN (DOWNSLAM) ====================
 pcall(function()
-local moveset = LocalPlayer:GetAttribute("Moveset")
-if moveset then
-local movesetService = ReplicatedStorage:WaitForChild("Knit", 3):WaitForChild("Knit", 3):WaitForChild("Services", 3):FindFirstChild(moveset.."Service")
-if movesetService and movesetService:FindFirstChild("RE") then
-local rem = movesetService.RE.Activated
-local old
-old = hookmetamethod(game, "__namecall", function(self, ...)
-local m = getnamecallmethod()
-local a = { ... }
-if self == rem and m == "FireServer" then
-if Config.AutoDownPunch and a[1] == false then
-a[1] = "Down"
-end
-return old(self, unpack(a))
-end
-return old(self, ...)
+	local movesetService = ReplicatedStorage:WaitForChild("Knit", 5):WaitForChild("Knit", 5):WaitForChild("Services", 5):FindFirstChild((LocalPlayer:GetAttribute("Moveset") or "Default").."Service")
+	if movesetService and movesetService:FindFirstChild("RE") then
+		local rem = movesetService.RE:FindFirstChild("Activated")
+		if rem then
+			local old
+			old = hookmetamethod(game, "__namecall", function(self, ...)
+				local m = getnamecallmethod()
+				local a = { ... }
+				if self == rem and m == "FireServer" then
+					if Config.AutoDownPunch and a[1] == false then
+						a[1] = "Down"
+					end
+					return old(self, unpack(a))
+				end
+				return old(self, ...)
+			end)
+		end
+	end
 end)
-end
-end
-end)
--- ==================== 2. INFINITE DASH (STABLE) ====================
+
+-- ==================== 2. INFINITE DASH ====================
 pcall(function()
-local oldTick = tick
-local fakeTime = oldTick()
-hookfunction(tick, function(...)
-if Config.InfDash then
-fakeTime = fakeTime + 2.5
-return fakeTime
-end
-return oldTick(...)
+	local oldTick = tick
+	local fakeTime = oldTick()
+	hookfunction(tick, function(...)
+		if Config.InfDash then
+			fakeTime = fakeTime + 2.0
+			return fakeTime
+		end
+		return oldTick(...)
+	end)
 end)
-end)
+
 -- ==================== 3. INFINITE JUMP ====================
 track(UserInputService.JumpRequest:Connect(function()
-if Config.InfJump then
-local char = LocalPlayer.Character
-local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-if humanoid then
-humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-end
-end
+	if Config.InfJump then
+		local char = LocalPlayer.Character
+		local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
 end))
+
 -- ==================== 4. AUTO NANAMI RATIO ====================
 pcall(function()
-local nanamiService = ReplicatedStorage:WaitForChild("Knit", 3):WaitForChild("Knit", 3):WaitForChild("Services", 3):FindFirstChild("NanamiService")
-if nanamiService then
-nanamiService.RE.Effects.OnClientEvent:Connect(function(...)
-if not Config.AutoRatio then return end
-local args = {...}
-if args[1] == "SpawnRatio" and args[2] == LocalPlayer then
-local ping = 0.05
-pcall(function() ping = LocalPlayer:GetNetworkPing() end)
-task.wait(math.max((args[6] * 0.5676) - ping, 0.01))
-nanamiService.RE.RightActivated:FireServer()
-end
+	local nanami = ReplicatedStorage:FindFirstChild("Knit")
+	if nanami then
+		nanami = nanami:FindFirstChild("Knit") and nanami.Knit:FindFirstChild("Services") and nanami.Knit.Services:FindFirstChild("NanamiService")
+		if nanami and nanami:FindFirstChild("RE") and nanami.RE:FindFirstChild("Effects") then
+			nanami.RE.Effects.OnClientEvent:Connect(function(...)
+				if not Config.AutoRatio then return end
+				local args = {...}
+				if args[1] == "SpawnRatio" and args[2] == LocalPlayer then
+					task.wait(math.max((args[6] * 0.5) - LocalPlayer:GetNetworkPing(), 0.05))
+					pcall(function() nanami.RE.RightActivated:FireServer() end)
+				end
+			end)
+		end
+	end
 end)
-end
-end)
--- ==================== 5. AUTO SKILL SPAM (FIXED PERFORMANCE) ====================
-track(task.spawn(function()
-while true do
-task.wait(0.1)
-if not getgenv().TrueChillGuys_Loaded then break end
-if Config.AutoBlackFlash then
-pcall(function()
-ReplicatedStorage.Knit.Knit.Services.TodoService.RE.RightActivated:FireServer()
-end)
-end
-if Config.FinalJudgementSpam then
-pcall(function()
-ReplicatedStorage.Knit.Knit.Services.FinalJudgementService.RE.Activated:FireServer()
-end)
-end
-end
+
+-- ==================== 5. OPTIMIZED AUTO SKILL SPAM ====================
+track(RunService.Heartbeat:Connect(function()
+	if Config.AutoBlackFlash then
+		pcall(function()
+			ReplicatedStorage.Knit.Knit.Services.TodoService.RE.RightActivated:FireServer()
+		end)
+	end
+	if Config.FinalJudgementSpam then
+		pcall(function()
+			ReplicatedStorage.Knit.Knit.Services.FinalJudgementService.RE.Activated:FireServer()
+		end)
+	end
 end))
--- ==================== 6. INVISIBLE BLOCK / ANIMATION HANDLER ====================
+
+-- ==================== 6. INVISIBLE BLOCK ====================
 pcall(function()
-local animMap = {
-Default = "rbxassetid://101865783312435",
-Gojo = "rbxassetid://104566923474227",
-Mechamaru = "rbxassetid://118069379726477",
-Nanami = "rbxassetid://99032134144831",
-Charles = "rbxassetid://112519964343154",
-Haruta = "rbxassetid://75237089031145",
-}
-local function setupChar(char)
-		local humanoid = char:WaitForChild("Humanoid", 5)
-		if not humanoid then return end
+	local animMap = {
+		Default = "rbxassetid://101865783312435",
+		Gojo = "rbxassetid://104566923474227",
+		Mechamaru = "rbxassetid://118069379726477",
+		Nanami = "rbxassetid://99032134144831",
+	}
+	local function setupChar(char)
+		local humanoid = char:WaitForChild("Humanoid")
 		humanoid.AnimationPlayed:Connect(function(animTrack)
 			if not Config.InvisibleBlock then return end
 			local animID = animTrack.Animation.AnimationId
@@ -169,137 +167,122 @@ local function setupChar(char)
 			end
 		end)
 	end
-	
-	if LocalPlayer.Character then
-		setupChar(LocalPlayer.Character)
-	end
+	if LocalPlayer.Character then setupChar(LocalPlayer.Character) end
 	LocalPlayer.CharacterAdded:Connect(setupChar)
 end)
--- ==================== 7. OPTIMIZED INSTANT BLACKHOLE ====================
-track(task.spawn(function()
-while true do
-task.wait(0.05)
-if not getgenv().TrueChillGuys_Loaded then break end
-if Config.InstantBlackhole then
-pcall(function()
-local yukiRE = ReplicatedStorage.Knit.Knit.Services.YukiService.RE.RightActivated
-for _ = 1, 5 do
-yukiRE:FireServer()
-end
-end)
-end
-end
+
+-- ==================== 7. INSTANT BLACKHOLE ====================
+track(RunService.Heartbeat:Connect(function()
+	if Config.InstantBlackhole then
+		pcall(function()
+			local yukiRE = ReplicatedStorage.Knit.Knit.Services.YukiService.RE.RightActivated
+			for _ = 1, 5 do
+				yukiRE:FireServer()
+			end
+		end)
+	end
 end))
+
 -- ==================== 8. YUKI AIM ====================
 local function acharAlvoMaisProximoMaximo()
-local char = LocalPlayer.Character
-if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
-local minhaPos = char.HumanoidRootPart.Position
-local maisProximo = nil
-local distanciaMin = math.huge
-for _, p in ipairs(Players:GetPlayers()) do
-if p ~= LocalPlayer and p.Character then
-local model = p.Character
-local hum = model:FindFirstChildOfClass("Humanoid")
-local hrp = model:FindFirstChild("HumanoidRootPart")
-if hum and hum.Health > 0 and hrp then
-local dist = (hrp.Position - minhaPos).Magnitude
-if dist < distanciaMin then
-distanciaMin = dist
-maisProximo = model
-end
-end
-end
-end
-return maisProximo
-end
-RunService.RenderStepped:Connect(function()
-local char = LocalPlayer.Character
-if not char then return end
-local humanoid = char:FindFirstChildOfClass("Humanoid")
-if not humanoid then return end
-if humanoid.Health <= 0 and not jaMorreu then
-		jaMorreu = true
-		if Config.YukiAim then
-			alvoAtual = acharAlvoMaisProximoMaximo()
+	local char = LocalPlayer.Character
+	if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+	local minhaPos = char.HumanoidRootPart.Position
+	local maisProximo = nil
+	local distanciaMin = math.huge
+	for _, obj in pairs(workspace:GetDescendants()) do
+		if obj:IsA("Humanoid") and obj.Health > 0 and obj.Parent and obj.Parent:FindFirstChild("HumanoidRootPart") then
+			local model = obj.Parent
+			if model ~= char and Players:GetPlayerFromCharacter(model) ~= LocalPlayer then
+				local dist = (model.HumanoidRootPart.Position - minhaPos).Magnitude
+				if dist < distanciaMin then
+					distanciaMin = dist
+					maisProximo = model
+				end
+			end
 		end
-	elseif humanoid.Health > 0 and jaMorreu then
+	end
+	return maisProximo
+end
+
+track(RunService.RenderStepped:Connect(function()
+	local char = LocalPlayer.Character
+	if not char then return end
+	local humanoid = char:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+	
+	if humanoid.Health <= 0 and not jaMorreu then
+		jaMorreu = true
+		if Config.YukiAim then alvoAtual = acharAlvoMaisProximoMaximo() end
+	end
+	if humanoid.Health > 0 and jaMorreu then
 		jaMorreu = false
 		alvoAtual = nil
 	end
 	
 	if Config.YukiAim and alvoAtual and alvoAtual.Parent then
-		local torso = alvoAtual:FindFirstChild("UpperTorso") or alvoAtual:FindFirstChild("HumanoidRootPart")
+		local torso = alvoAtual:FindFirstChild("UpperTorso") or alvoAtual:FindFirstChild("Torso") or alvoAtual:FindFirstChild("HumanoidRootPart")
 		if torso then
 			Camera.CFrame = CFrame.new(Camera.CFrame.Position, torso.Position)
 		end
 	end
-end)
--- ==================== 9. OPTIMIZED AUTO AQATING ====================
+end))
+
+-- ==================== 9. AUTO AQATING ====================
 local lastAqatingDodge = 0
 local aqatingLocked = {}
-RunService.Heartbeat:Connect(function()
-if not Config.AutoAqating then return end
-local myChar = LocalPlayer.Character
-local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
-if not myRoot then return end
-for _, p in ipairs(Players:GetPlayers()) do
+
+track(RunService.Heartbeat:Connect(function()
+	if not Config.AutoAqating then return end
+	local myChar = LocalPlayer.Character
+	local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+	if not myRoot then return end
+
+	for _, p in ipairs(Players:GetPlayers()) do
 		if p ~= LocalPlayer and p.Character then
 			local model = p.Character
 			local hum = model:FindFirstChildOfClass("Humanoid")
-			local er = model:FindFirstChild("HumanoidRootPart")
-			if hum and hum.Health > 0 and er and (myRoot.Position - er.Position).Magnitude <= 30 then
-				if not aqatingLocked[model] or (tick() - aqatingLocked[model]) >= 1.2 then
-					local animator = hum:FindFirstChildOfClass("Animator")
-					if animator then
-						for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
-							local pri = track.Priority
-							if track.WeightCurrent > 0.1 and (pri == Enum.AnimationPriority.Action or pri == Enum.AnimationPriority.Action2 or pri == Enum.AnimationPriority.Action3) then
-								aqatingLocked[model] = tick()
-								if tick() - lastAqatingDodge >= 0.5 then
-									pcall(function()
-										local main = LocalPlayer.PlayerGui:FindFirstChild("Main")
-										local moveset = main and main:FindFirstChild("Controls") and main.Controls:FindFirstChild("Moveset")
-										if moveset then
-											for _, skill in ipairs(moveset:GetChildren()) do
-												local nc = string.lower(skill.Name)
-												if nc:find("adapt") or nc:find("wheel") or nc:find("mahoraga") then
-													local btn = skill:FindFirstChild("Touch") or skill:FindFirstChild("ItemName") or skill
-													if btn and btn:IsA("GuiObject") and firesignal then
-														firesignal(btn.MouseButton1Down)
-														task.delay(0.05, function() pcall(firesignal, btn.MouseButton1Up) end)
-													end
-												end
-											end
-										end
-									end)
-									lastAqatingDodge = tick()
+			if hum and hum.Health > 0 then
+				local er = model:FindFirstChild("HumanoidRootPart")
+				if er and (myRoot.Position - er.Position).Magnitude <= 25 then
+					if not aqatingLocked[model] or (tick() - aqatingLocked[model]) >= 1.2 then
+						aqatingLocked[model] = tick()
+						if tick() - lastAqatingDodge >= 0.5 then
+							pcall(function()
+								local moveset = LocalPlayer.PlayerGui.Main.Controls.Moveset
+								for _, skill in ipairs(moveset:GetChildren()) do
+									local nc = string.lower(skill.Name)
+									if nc:find("adapt") or nc:find("wheel") or nc:find("mahoraga") then
+										local btn = skill:FindFirstChild("Touch") or skill
+										if btn and firesignal then firesignal(btn.MouseButton1Down) end
+									end
 								end
-								break
-							end
+							end)
+							lastAqatingDodge = tick()
 						end
 					end
 				end
 			end
 		end
 	end
-end)
--- ==================== 10. ESP & HITBOX MANAGER ====================
-RunService.RenderStepped:Connect(function()
-for _, p in ipairs(Players:GetPlayers()) do
-if p ~= LocalPlayer and p.Character then
-local pHrp = p.Character:FindFirstChild("HumanoidRootPart")
-if pHrp then
-if Config.HitboxSize > 2 then
-pHrp.Size = Vector3.new(Config.HitboxSize, Config.HitboxSize, Config.HitboxSize)
-pHrp.Transparency = 0.6
-pHrp.CanCollide = false
-else
-pHrp.Size = Vector3.new(2, 2, 1)
-pHrp.Transparency = 1
-end
-end
-		local highlight = p.Character:FindFirstChild("TrueChillESP")
+end))
+
+-- ==================== 10. ESP & HITBOX ====================
+track(RunService.RenderStepped:Connect(function()
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer and p.Character then
+			local pHrp = p.Character:FindFirstChild("HumanoidRootPart")
+			if pHrp then
+				if Config.HitboxSize > 2 then
+					pHrp.Size = Vector3.new(Config.HitboxSize, Config.HitboxSize, Config.HitboxSize)
+					pHrp.Transparency = 0.6
+					pHrp.CanCollide = false
+				else
+					pHrp.Size = Vector3.new(2, 2, 1)
+					pHrp.Transparency = 1
+				end
+			end
+			local highlight = p.Character:FindFirstChild("TrueChillESP")
 			if Config.ESPEnabled then
 				if not highlight then
 					highlight = Instance.new("Highlight")
@@ -314,63 +297,49 @@ end
 			end
 		end
 	end
-end)
--- ==================== 11. COMBAT & CAMLOCK ====================
+end))
+
+-- ==================== 11. REMOTE MONITORING & COMBAT ====================
 local function instantHardSnap(targetHRP)
-if not targetHRP or not targetHRP.Parent then return end
-local char = LocalPlayer.Character
-local hrp = char and char:FindFirstChild("HumanoidRootPart")
-local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-if hrp then
+	if not targetHRP or not targetHRP.Parent then return end
+	local char = LocalPlayer.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+	if hrp then
 		if humanoid then humanoid.AutoRotate = false end
 		local flatTarget = Vector3.new(targetHRP.Position.X, hrp.Position.Y, targetHRP.Position.Z)
 		hrp.CFrame = CFrame.lookAt(hrp.Position, flatTarget)
-		
 		task.delay(0.3, function()
-			if humanoid and not Config.SmartCamlock then
-				humanoid.AutoRotate = true
-			end
+			if humanoid and not Config.SmartCamlock then humanoid.AutoRotate = true end
 		end)
 	end
 end
-RunService.RenderStepped:Connect(function()
-if not Config.SmartCamlock or not smartLockedHRP or not smartLockedHRP.Parent then return end
-local char = LocalPlayer.Character
-local hrp = char and char:FindFirstChild("HumanoidRootPart")
-local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-if hrp then
-		if humanoid then humanoid.AutoRotate = false end
-		local targetPos = smartLockedHRP.Position
-		local flatTarget = Vector3.new(targetPos.X, hrp.Position.Y, targetPos.Z)
-		hrp.CFrame = CFrame.lookAt(hrp.Position, flatTarget)
-	end
-end)
+
 local function triggerSkill(keyword)
-pcall(function()
-local main = LocalPlayer.PlayerGui:FindFirstChild("Main")
-local moveset = main and main:FindFirstChild("Controls") and main.Controls:FindFirstChild("Moveset")
-if moveset then
-for _, child in ipairs(moveset:GetChildren()) do
-if child.Name:lower():find(keyword) then
-local targetButton = child:FindFirstChild("ItemName") or child:FindFirstChild("Touch") or child
-if targetButton and targetButton:IsA("GuiObject") and firesignal then
-firesignal(targetButton.MouseButton1Down)
-task.wait(0.02)
-firesignal(targetButton.MouseButton1Up)
+	pcall(function()
+		local moveset = LocalPlayer.PlayerGui.Main.Controls.Moveset
+		for _, child in ipairs(moveset:GetChildren()) do
+			if child.Name:lower():find(keyword) then
+				local btn = child:FindFirstChild("ItemName") or child:FindFirstChild("Touch") or child
+				if btn and firesignal then
+					firesignal(btn.MouseButton1Down)
+					task.wait(0.02)
+					firesignal(btn.MouseButton1Up)
+				end
+				break
+			end
+		end
+	end)
 end
-break
-end
-end
-end
-end)
-end
+
 local isBlockActive, isParryActive, isSupernovaActive, isCounterActive = false, false, false, false
+
 local function monitorRemote(remote)
-if not remote:IsA("RemoteEvent") then return end
-if remote == activatedRE or remote == deactivatedRE then return end
-local n = remote.Name:lower()
-if n:find("emote") or n:find("chat") or n:find("load") or n:find("sound") then return end
-track(remote.OnClientEvent:Connect(function(...)
+	if not remote:IsA("RemoteEvent") then return end
+	if remote == activatedRE or remote == deactivatedRE then return end
+	if remote.Name:lower():find("emote") or remote.Name:lower():find("chat") then return end
+
+	track(remote.OnClientEvent:Connect(function(...)
 		local char = LocalPlayer.Character
 		local hrp = char and char:FindFirstChild("HumanoidRootPart")
 		if not hrp then return end
@@ -393,19 +362,16 @@ track(remote.OnClientEvent:Connect(function(...)
 								isBlockActive = false
 							end)
 						end
-						
 						if Config.AutoParry and dist <= Config.ParryDist and not isParryActive then
 							isParryActive = true
 							triggerSkill("outburst")
 							task.delay(Config.ParryDelay, function() isParryActive = false end)
 						end
-						
 						if Config.Supernova and dist <= Config.SupernovaDist and not isSupernovaActive then
 							isSupernovaActive = true
 							triggerSkill("supernova")
 							task.delay(Config.SupernovaDelay, function() isSupernovaActive = false end)
 						end
-						
 						if Config.AutoCounter and dist <= Config.CounterDist and not isCounterActive then
 							isCounterActive = true
 							triggerSkill("manji")
@@ -417,104 +383,88 @@ track(remote.OnClientEvent:Connect(function(...)
 		end
 	end))
 end
--- Filtered Monitoring to prevent performance drops
-pcall(function()
-local knitServices = ReplicatedStorage:WaitForChild("Knit", 3):WaitForChild("Knit", 3):WaitForChild("Services", 3)
-for _, service in ipairs(knitServices:GetChildren()) do
-local reFolder = service:FindFirstChild("RE")
-if reFolder then
-for _, rem in ipairs(reFolder:GetChildren()) do
-monitorRemote(rem)
-end
-end
-end
-end)
--- ==================== 12. INVISIBLE & NOCLIP ====================
-RunService.RenderStepped:Connect(function()
-local char = LocalPlayer.Character
-if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-local rootPart = char.HumanoidRootPart
-if Config.Noclip then
-		for _, part in ipairs(char:GetDescendants()) do
-			if part:IsA("BasePart") then part.CanCollide = false end
-		end
-	end
 
+for _, descendant in pairs(ReplicatedStorage:GetDescendants()) do
+	monitorRemote(descendant)
+end
+track(ReplicatedStorage.DescendantAdded:Connect(monitorRemote))
+
+-- ==================== 12. INVISIBLE & NOCLIP ====================
+track(RunService.RenderStepped:Connect(function()
+	local char = LocalPlayer.Character
+	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+	local rootPart = char.HumanoidRootPart
 	if Config.Invisible then
-		for _, part in ipairs(char:GetDescendants()) do
+		for _, part in pairs(char:GetDescendants()) do
 			if part:IsA("BasePart") then part.CanCollide = false end
 		end
 		rootPart.AssemblyLinearVelocity = Vector3.zero
 		rootPart.CFrame = rootPart.CFrame - Vector3.new(0, Config.DepthDistance, 0)
 	end
-end)
--- ==================== 13. UPGRADED MODERN GUI HUB ====================
+end))
+
+-- ==================== 13. MODERN GUI (UI MENU) ====================
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "TrueChillGuys_V4_GUI"
+screenGui.Name = "TrueChillGuys_v4_GUI"
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 screenGui.DisplayOrder = 9999
-if not pcall(function() screenGui.Parent = CoreGui end) then
-screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-end
+pcall(function() screenGui.Parent = CoreGui end)
+if not screenGui.Parent then screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
 local theme = {
-bg = Color3.fromRGB(12, 18, 14),
-containerBg = Color3.fromRGB(18, 26, 20),
-elementBg = Color3.fromRGB(25, 36, 28),
-elementHover = Color3.fromRGB(35, 50, 38),
-accent = Color3.fromRGB(0, 255, 130),
-text = Color3.fromRGB(240, 255, 245),
-subText = Color3.fromRGB(140, 180, 155),
-active = Color3.fromRGB(0, 255, 130),
-inactive = Color3.fromRGB(50, 68, 55),
+	bg = Color3.fromRGB(10, 14, 11),
+	containerBg = Color3.fromRGB(15, 22, 17),
+	elementBg = Color3.fromRGB(22, 32, 25),
+	elementHover = Color3.fromRGB(30, 44, 35),
+	accent = Color3.fromRGB(0, 255, 120),
+	text = Color3.fromRGB(240, 255, 245),
+	inactive = Color3.fromRGB(45, 60, 50),
 }
+
 local function applyCorner(inst, radius)
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, radius)
-corner.Parent = inst
-return corner
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, radius)
+	c.Parent = inst
 end
-local function applyStroke(inst, color, thickness)
-local stroke = Instance.new("UIStroke")
-stroke.Color = color
-stroke.Thickness = thickness or 1
-stroke.Parent = inst
-return stroke
+
+local function applyStroke(inst, color)
+	local s = Instance.new("UIStroke")
+	s.Color = color
+	s.Thickness = 1.5
+	s.Parent = inst
 end
+
 local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 560, 0, 380)
-mainFrame.Position = UDim2.new(0.5, -280, 0.5, -190)
+mainFrame.Size = UDim2.new(0, 520, 0, 360)
+mainFrame.Position = UDim2.new(0.5, -260, 0.5, -180)
 mainFrame.BackgroundColor3 = theme.bg
 mainFrame.Active = true
 mainFrame.Draggable = true
 mainFrame.Parent = screenGui
 applyCorner(mainFrame, 16)
-applyStroke(mainFrame, theme.accent, 2)
+applyStroke(mainFrame, theme.accent)
+
 local topBar = Instance.new("Frame")
-topBar.Size = UDim2.new(1, 0, 0, 50)
+topBar.Size = UDim2.new(1, 0, 0, 48)
 topBar.BackgroundColor3 = theme.containerBg
 topBar.Parent = mainFrame
 applyCorner(topBar, 16)
-local topBarFix = Instance.new("Frame")
-topBarFix.Position = UDim2.new(0, 0, 1, -12)
-topBarFix.Size = UDim2.new(1, 0, 0, 12)
-topBarFix.BackgroundColor3 = theme.containerBg
-topBarFix.BorderSizePixel = 0
-topBarFix.Parent = topBar
+
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, -100, 1, 0)
 titleLabel.Position = UDim2.new(0, 18, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "True Chill Guys Hub v4.0 (Ultimate)"
+titleLabel.Text = "True Chill Guys Hub v4.0"
 titleLabel.TextColor3 = theme.accent
 titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextSize = 15
+titleLabel.TextSize = 14
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Parent = topBar
+
 local closeBtn = Instance.new("TextButton")
 closeBtn.Size = UDim2.new(0, 32, 0, 32)
-closeBtn.Position = UDim2.new(1, -42, 0, 9)
+closeBtn.Position = UDim2.new(1, -40, 0, 8)
 closeBtn.BackgroundColor3 = theme.elementBg
 closeBtn.Text = "✕"
 closeBtn.TextColor3 = theme.text
@@ -522,95 +472,105 @@ closeBtn.Font = Enum.Font.GothamBold
 closeBtn.TextSize = 14
 closeBtn.Parent = topBar
 applyCorner(closeBtn, 8)
-local isGuiVisible = true
+
+local isVisible = true
 closeBtn.MouseButton1Click:Connect(function()
-isGuiVisible = not isGuiVisible
-mainFrame.Visible = isGuiVisible
+	isVisible = not isVisible
+	mainFrame.Visible = isVisible
 end)
+
 local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0, 140, 1, -62)
-sidebar.Position = UDim2.new(0, 12, 0, 56)
+sidebar.Size = UDim2.new(0, 140, 1, -58)
+sidebar.Position = UDim2.new(0, 10, 0, 52)
 sidebar.BackgroundColor3 = theme.containerBg
 sidebar.Parent = mainFrame
 applyCorner(sidebar, 12)
-local sideListLayout = Instance.new("UIListLayout")
-sideListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-sideListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-sideListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-sideListLayout.Padding = UDim.new(0, 6)
-sideListLayout.Parent = sidebar
+
+local sideLayout = Instance.new("UIListLayout")
+sideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+sideLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+sideLayout.SortOrder = Enum.SortOrder.LayoutOrder
+sideLayout.Padding = UDim.new(0, 6)
+sideLayout.Parent = sidebar
+
 local sidePadding = Instance.new("UIPadding")
 sidePadding.PaddingTop = UDim.new(0, 10)
 sidePadding.Parent = sidebar
+
 local contentHolder = Instance.new("Frame")
-contentHolder.Size = UDim2.new(1, -168, 1, -62)
-contentHolder.Position = UDim2.new(0, 160, 0, 56)
+contentHolder.Size = UDim2.new(1, -165, 1, -58)
+contentHolder.Position = UDim2.new(0, 156, 0, 52)
 contentHolder.BackgroundColor3 = theme.containerBg
 contentHolder.Parent = mainFrame
 applyCorner(contentHolder, 12)
+
 local function createTabPage()
-local sf = Instance.new("ScrollingFrame")
-sf.Size = UDim2.new(1, -10, 1, -10)
-sf.Position = UDim2.new(0, 5, 0, 5)
-sf.BackgroundTransparency = 1
-sf.BorderSizePixel = 0
-sf.ScrollBarThickness = 3
-sf.AutomaticCanvasSize = Enum.AutomaticSize.Y
-sf.CanvasSize = UDim2.new(0, 0, 0, 0)
-sf.Visible = false
-sf.Parent = contentHolder
-local layout = Instance.new("UIListLayout")
+	local sf = Instance.new("ScrollingFrame")
+	sf.Size = UDim2.new(1, -10, 1, -10)
+	sf.Position = UDim2.new(0, 5, 0, 5)
+	sf.BackgroundTransparency = 1
+	sf.BorderSizePixel = 0
+	sf.ScrollBarThickness = 2
+	sf.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	sf.CanvasSize = UDim2.new(0, 0, 0, 0)
+	sf.Visible = false
+	sf.Parent = contentHolder
+	local layout = Instance.new("UIListLayout")
 	layout.Padding = UDim.new(0, 6)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.Parent = sf
 	return sf
 end
+
 local combatPage = createTabPage()
 local extraPage = createTabPage()
 local settingsPage = createTabPage()
 local creditPage = createTabPage()
 combatPage.Visible = true
+
 local function createTabButton(name, order, targetPage)
-local btn = Instance.new("TextButton")
-btn.LayoutOrder = order
-btn.Size = UDim2.new(1, -16, 0, 36)
-btn.BackgroundColor3 = (targetPage.Visible and theme.elementHover or theme.elementBg)
-btn.Text = name
-btn.TextColor3 = (targetPage.Visible and theme.accent or theme.text)
-btn.Font = Enum.Font.GothamMedium
-btn.TextSize = 12
-btn.Parent = sidebar
-applyCorner(btn, 8)
-btn.MouseButton1Click:Connect(function()
+	local btn = Instance.new("TextButton")
+	btn.LayoutOrder = order
+	btn.Size = UDim2.new(1, -16, 0, 36)
+	btn.BackgroundColor3 = (targetPage.Visible and theme.elementHover or theme.elementBg)
+	btn.Text = name
+	btn.TextColor3 = (targetPage.Visible and theme.accent or theme.text)
+	btn.Font = Enum.Font.GothamMedium
+	btn.TextSize = 12
+	btn.Parent = sidebar
+	applyCorner(btn, 8)
+	
+	btn.MouseButton1Click:Connect(function()
 		combatPage.Visible = false
 		extraPage.Visible = false
 		settingsPage.Visible = false
 		creditPage.Visible = false
-		
 		for _, child in pairs(sidebar:GetChildren()) do
 			if child:IsA("TextButton") then
 				child.BackgroundColor3 = theme.elementBg
 				child.TextColor3 = theme.text
 			end
 		end
-		
 		targetPage.Visible = true
 		btn.BackgroundColor3 = theme.elementHover
 		btn.TextColor3 = theme.accent
 	end)
 end
+
 createTabButton("Combat", 1, combatPage)
 createTabButton("Extra", 2, extraPage)
 createTabButton("Settings", 3, settingsPage)
 createTabButton("Credit", 4, creditPage)
+
 local function createButtonToggle(parent, order, text, initialVal, callback)
-local container = Instance.new("Frame")
-container.LayoutOrder = order
-container.Size = UDim2.new(1, -4, 0, 38)
-container.BackgroundColor3 = theme.elementBg
-container.Parent = parent
-applyCorner(container, 8)
-local label = Instance.new("TextLabel")
+	local container = Instance.new("Frame")
+	container.LayoutOrder = order
+	container.Size = UDim2.new(1, -4, 0, 38)
+	container.BackgroundColor3 = theme.elementBg
+	container.Parent = parent
+	applyCorner(container, 8)
+
+	local label = Instance.new("TextLabel")
 	label.Size = UDim2.new(1, -55, 1, 0)
 	label.Position = UDim2.new(0, 12, 0, 0)
 	label.BackgroundTransparency = 1
@@ -624,7 +584,7 @@ local label = Instance.new("TextLabel")
 	local toggleBtn = Instance.new("TextButton")
 	toggleBtn.Size = UDim2.new(0, 36, 0, 20)
 	toggleBtn.Position = UDim2.new(1, -44, 0.5, -10)
-	toggleBtn.BackgroundColor3 = initialVal and theme.active or theme.inactive
+	toggleBtn.BackgroundColor3 = initialVal and theme.accent or theme.inactive
 	toggleBtn.Text = ""
 	toggleBtn.Parent = container
 	applyCorner(toggleBtn, 10)
@@ -640,7 +600,7 @@ local label = Instance.new("TextLabel")
 	toggleBtn.MouseButton1Click:Connect(function()
 		stateVal = not stateVal
 		if stateVal then
-			toggleBtn.BackgroundColor3 = theme.active
+			toggleBtn.BackgroundColor3 = theme.accent
 			dot:TweenPosition(UDim2.new(1, -18, 0.5, -8), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
 		else
 			toggleBtn.BackgroundColor3 = theme.inactive
@@ -649,95 +609,27 @@ local label = Instance.new("TextLabel")
 		callback(stateVal)
 	end)
 end
--- ==================== FILL COMBAT TAB ====================
-createButtonToggle(combatPage, 1, "Auto Block (With Camlock)", Config.AutoBlock, function(v) Config.AutoBlock = v end)
-createButtonToggle(combatPage, 2, "Auto Parry (Outburst)", Config.AutoParry, function(v) Config.AutoParry = v end)
+
+-- Populate Tabs
+createButtonToggle(combatPage, 1, "Auto Block", Config.AutoBlock, function(v) Config.AutoBlock = v end)
+createButtonToggle(combatPage, 2, "Auto Parry", Config.AutoParry, function(v) Config.AutoParry = v end)
 createButtonToggle(combatPage, 3, "Supernova", Config.Supernova, function(v) Config.Supernova = v end)
-createButtonToggle(combatPage, 4, "Auto Counter (Manji)", Config.AutoCounter, function(v) Config.AutoCounter = v end)
-createButtonToggle(combatPage, 5, "Auto Down Punch (Downslam)", Config.AutoDownPunch, function(v) Config.AutoDownPunch = v end)
-createButtonToggle(combatPage, 6, "Auto Black Flash (Todo)", Config.AutoBlackFlash, function(v) Config.AutoBlackFlash = v end)
--- ==================== FILL EXTRA TAB ====================
-createButtonToggle(extraPage, 1, "Smart Camlock", Config.SmartCamlock, function(v) Config.SmartCamlock = v if not v then smartLockedHRP = nil end end)
+createButtonToggle(combatPage, 4, "Auto Counter", Config.AutoCounter, function(v) Config.AutoCounter = v end)
+createButtonToggle(combatPage, 5, "Auto Down Punch", Config.AutoDownPunch, function(v) Config.AutoDownPunch = v end)
+createButtonToggle(combatPage, 6, "Auto Black Flash", Config.AutoBlackFlash, function(v) Config.AutoBlackFlash = v end)
+
+createButtonToggle(extraPage, 1, "Smart Camlock", Config.SmartCamlock, function(v) Config.SmartCamlock = v end)
 createButtonToggle(extraPage, 2, "Auto Nanami Ratio", Config.AutoRatio, function(v) Config.AutoRatio = v end)
-createButtonToggle(extraPage, 3, "Infinite Dash (Fixed)", Config.InfDash, function(v) Config.InfDash = v end)
+createButtonToggle(extraPage, 3, "Infinite Dash", Config.InfDash, function(v) Config.InfDash = v end)
 createButtonToggle(extraPage, 4, "Infinite Jump", Config.InfJump, function(v) Config.InfJump = v end)
-createButtonToggle(extraPage, 5, "Invisible Block / Anim Mod", Config.InvisibleBlock, function(v) Config.InvisibleBlock = v end)
-createButtonToggle(extraPage, 6, "Yuki Aim (Max)", Config.YukiAim, function(v) Config.YukiAim = v end)
+createButtonToggle(extraPage, 5, "Invisible Block", Config.InvisibleBlock, function(v) Config.InvisibleBlock = v end)
+createButtonToggle(extraPage, 6, "Yuki Aim", Config.YukiAim, function(v) Config.YukiAim = v end)
 createButtonToggle(extraPage, 7, "Auto Aqating", Config.AutoAqating, function(v) Config.AutoAqating = v end)
 createButtonToggle(extraPage, 8, "Final Judgement Spam", Config.FinalJudgementSpam, function(v) Config.FinalJudgementSpam = v end)
-createButtonToggle(extraPage, 9, "Invisible Toggle", Config.Invisible, function(v) Config.Invisible = v end)
-createButtonToggle(extraPage, 10, "Noclip Toggle", Config.Noclip, function(v) Config.Noclip = v end)
--- ==================== FILL SETTINGS TAB ====================
+
 createButtonToggle(settingsPage, 1, "ESP Enabled", Config.ESPEnabled, function(v) Config.ESPEnabled = v end)
-local function createSlider(parent, order, titleText, minVal, maxVal, currentVal, decimals, callback)
-local container = Instance.new("Frame")
-container.LayoutOrder = order
-container.Size = UDim2.new(1, -4, 0, 50)
-container.BackgroundColor3 = theme.elementBg
-container.Parent = parent
-applyCorner(container, 8)
-local label = Instance.new("TextLabel")
-	label.Size = UDim2.new(1, -12, 0, 22)
-	label.Position = UDim2.new(0, 12, 0, 4)
-	label.BackgroundTransparency = 1
-	label.TextColor3 = theme.text
-	label.Font = Enum.Font.GothamMedium
-	label.TextSize = 11
-	label.TextXAlignment = Enum.TextXAlignment.Left
-	label.Parent = container
 
-	local function updateLabel(val)
-		if decimals == 0 then
-			label.Text = titleText .. ": " .. math.floor(val)
-		else
-			label.Text = string.format("%s: %.2f s", titleText, val)
-		end
-	end
-	updateLabel(currentVal)
-
-	local bar = Instance.new("Frame")
-	bar.Position = UDim2.new(0.06, 0, 0, 32)
-	bar.Size = UDim2.new(0.88, 0, 0, 6)
-	bar.BackgroundColor3 = theme.inactive
-	bar.Parent = container
-	applyCorner(bar, 3)
-
-	local fill = Instance.new("Frame")
-	fill.Size = UDim2.new((currentVal - minVal) / (maxVal - minVal), 0, 1, 0)
-	fill.BackgroundColor3 = theme.accent
-	fill.Parent = bar
-	applyCorner(fill, 3)
-
-	local sliding = false
-	bar.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			sliding = true
-		end
-	end)
-
-	track(UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			sliding = false
-		end
-	end))
-
-	track(UserInputService.InputChanged:Connect(function(input)
-		if sliding and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local posPercentage = math.clamp((input.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
-			fill.Size = UDim2.new(posPercentage, 0, 1, 0)
-			local calculatedVal = minVal + (maxVal - minVal) * posPercentage
-			if decimals == 0 then
-				calculatedVal = math.floor(calculatedVal + 0.5)
-			end
-			updateLabel(calculatedVal)
-			callback(calculatedVal)
-		end
-	end))
-end
-createSlider(settingsPage, 2, "Hitbox Size", 0, 40, Config.HitboxSize, 0, function(v) Config.HitboxSize = v end)
-createSlider(settingsPage, 3, "Block Distance", 5, 50, Config.BlockDist, 0, function(v) Config.BlockDist = v end)
-createSlider(settingsPage, 4, "Block Delay", 0.05, 1.5, Config.BlockDelay, 2, function(v) Config.BlockDelay = v end)
--- ==================== FILL CREDIT TAB ====================
+-- Credit Tab Label
 local creditLabel = Instance.new("TextLabel")
 creditLabel.Size = UDim2.new(1, -10, 0, 50)
 creditLabel.Position = UDim2.new(0, 5, 0, 15)
@@ -745,33 +637,11 @@ creditLabel.BackgroundTransparency = 1
 creditLabel.Text = "Made by True Chill Guys"
 creditLabel.TextColor3 = theme.text
 creditLabel.Font = Enum.Font.GothamBold
-creditLabel.TextSize = 16
-creditLabel.TextWrapped = true
+creditLabel.TextSize = 15
 creditLabel.Parent = creditPage
-local discordBtn = Instance.new("TextButton")
-discordBtn.Size = UDim2.new(1, -10, 0, 42)
-discordBtn.Position = UDim2.new(0, 5, 0, 75)
-discordBtn.BackgroundColor3 = theme.elementBg
-discordBtn.Text = "Join Discord Here"
-discordBtn.TextColor3 = theme.accent
-discordBtn.Font = Enum.Font.GothamBold
-discordBtn.TextSize = 13
-discordBtn.Parent = creditPage
-applyCorner(discordBtn, 8)
-applyStroke(discordBtn, theme.accent, 1)
-discordBtn.MouseButton1Click:Connect(function()
-pcall(function()
-if setclipboard then
-setclipboard("https://discord.gg/TAdCDA8VX")
-end
-end)
-discordBtn.Text = "Discord Link Copied!"
-task.wait(2)
-discordBtn.Text = "Join Discord Here"
-end)
--- ==================== FLOATING BLACKHOLE BUTTON ====================
+
+-- Floating Blackhole Button
 local floatBtn = Instance.new("TextButton")
-floatBtn.Name = "InstantBlackholeFloatBtn"
 floatBtn.Size = UDim2.new(0, 150, 0, 38)
 floatBtn.Position = UDim2.new(0.05, 0, 0.8, 0)
 floatBtn.BackgroundColor3 = theme.containerBg
@@ -783,30 +653,22 @@ floatBtn.Active = true
 floatBtn.Draggable = true
 floatBtn.Parent = screenGui
 applyCorner(floatBtn, 10)
-applyStroke(floatBtn, theme.accent, 1.5)
-floatBtn.MouseButton1Click:Connect(function()
-Config.InstantBlackhole = not Config.InstantBlackhole
-if Config.InstantBlackhole then
-floatBtn.Text = "Blackhole: ON 🟢"
-floatBtn.BackgroundColor3 = Color3.fromRGB(15, 45, 25)
-else
-floatBtn.Text = "Blackhole: OFF 🔴"
-floatBtn.BackgroundColor3 = theme.containerBg
-end
-end)
-getgenv().TrueChillGuys_Unload = function()
-for _, c in ipairs(connections) do pcall(function() c:Disconnect() end) end
-table.clear(connections)
-screenGui:Destroy()
-local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-if humanoid then humanoid.AutoRotate = true end
-getgenv().TrueChillGuys_Loaded = nil
-end
-print("True Chill Guys Hub v4.0 Ultimate Loaded Successfully! 🟢🛡️")
-```
+applyStroke(floatBtn, theme.accent)
 
-### Các lỗi đã được tìm và khắc phục triệt để trong bản v4.0 này:
-1. **Lỗi treo vòng lặp vô hạn (Infinite Loop & Memory Leak):** Thêm điều kiện kiểm tra biến toàn cục `if not getgenv().TrueChillGuys_Loaded then break end` vào các luồng `task.spawn` để khi Unload script sẽ dừng hoàn toàn, không chạy ngầm gây lag máy.
-2. **Lỗi quá tải mạng (Remote Events Overload):** Thay vì quét toàn bộ `ReplicatedStorage:GetDescendants()` khiến client nhận quá nhiều gói tin thừa gây tụt FPS, phiên bản này đã thu hẹp phạm vi quét có chọn lọc vào các thư mục chứa dịch vụ chính (`Knit Services > RE`), giúp game mượt mà hơn rất nhiều.
-3. **Lỗi xung đột khi tìm kiếm nút kỹ năng (UI Pathing):** Sửa và tối ưu hóa lại đường dẫn tìm kiếm nút kỹ năng trên màn hình người chơi (`PlayerGui.Main.Controls.Moveset`), giảm thiểu lỗi `nil reference` gây đỏ console F9.
-4. **Nâng cấp giao diện (UI Redesign):** Làm mượt mà các góc cạnh, tăng độ tương phản màu sắc cho dễ nhìn, thêm hiệu ứng chuyển tab mượt và tinh chỉnh nút nổi điều khiển Blackhole trực quan hơn.
+floatBtn.MouseButton1Click:Connect(function()
+	Config.InstantBlackhole = not Config.InstantBlackhole
+	if Config.InstantBlackhole then
+		floatBtn.Text = "Blackhole: ON 🟢"
+	else
+		floatBtn.Text = "Blackhole: OFF 🔴"
+	end
+end)
+
+getgenv().TrueChillGuys_Unload = function()
+	for _, c in ipairs(connections) do pcall(function() c:Disconnect() end) end
+	table.clear(connections)
+	screenGui:Destroy()
+	getgenv().TrueChillGuys_Loaded = nil
+end
+
+print("True Chill Guys Hub v4.0 Ultimate Loaded Successfully! 🟢")
