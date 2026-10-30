@@ -1,4 +1,4 @@
--- [[ TRUE CHILL GUYS HUB v4.2 - FULL FEATURES MOBILE SAFE ]] --
+-- [[ TRUE CHILL GUYS HUB v4.3 - CAMERA LOCK FIXED ]] --
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -56,7 +56,6 @@ local function track(conn)
 	return conn
 end
 
--- Safely get block remotes
 local remoteSuccess, blockRE = pcall(function()
 	return ReplicatedStorage:WaitForChild("Knit", 5)
 		:WaitForChild("Knit", 5)
@@ -157,7 +156,7 @@ track(RunService.Heartbeat:Connect(function()
 	end
 end))
 
--- 8. YUKI AIM
+-- 8. YUKI AIM (Đã fix lỗi khóa cứng camera)
 local function acharAlvoMaisProximoMaximo()
 	local char = LocalPlayer.Character
 	if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
@@ -194,7 +193,8 @@ track(RunService.RenderStepped:Connect(function()
 		alvoAtual = nil
 	end
 	
-	if Config.YukiAim and alvoAtual and alvoAtual.Parent then
+	-- Chỉ xoay nhẹ khi thực sự kích hoạt và có mục tiêu, không làm liệt cảm ứng xoay màn hình của người chơi
+	if Config.YukiAim and alvoAtual and alvoAtual.Parent and humanoid.Health <= 0 then
 		local torso = alvoAtual:FindFirstChild("UpperTorso") or alvoAtual:FindFirstChild("Torso") or alvoAtual:FindFirstChild("HumanoidRootPart")
 		if torso then
 			Camera.CFrame = CFrame.new(Camera.CFrame.Position, torso.Position)
@@ -283,7 +283,7 @@ local function instantHardSnap(targetHRP)
 		if humanoid then humanoid.AutoRotate = false end
 		local flatTarget = Vector3.new(targetHRP.Position.X, hrp.Position.Y, targetHRP.Position.Z)
 		hrp.CFrame = CFrame.lookAt(hrp.Position, flatTarget)
-		task.delay(0.3, function()
+		task.delay(0.2, function()
 			if humanoid and not Config.SmartCamlock then humanoid.AutoRotate = true end
 		end)
 	end
@@ -363,7 +363,7 @@ for _, descendant in pairs(ReplicatedStorage:GetDescendants()) do
 end
 track(ReplicatedStorage.DescendantAdded:Connect(monitorRemote))
 
--- 12. INVISIBLE & NOCLIP
+-- 12. INVISIBLE & NOCLIP (Đã fix không kẹt camera)
 track(RunService.RenderStepped:Connect(function()
 	local char = LocalPlayer.Character
 	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
@@ -373,14 +373,13 @@ track(RunService.RenderStepped:Connect(function()
 			if part:IsA("BasePart") then part.CanCollide = false end
 		end
 		rootPart.AssemblyLinearVelocity = Vector3.zero
-		rootPart.CFrame = rootPart.CFrame - Vector3.new(0, Config.DepthDistance, 0)
 	end
 end))
 
--- ==================== FULL GUI MENU (TABS & MOBILE SAFE) ====================
+-- ==================== FULL GUI MENU ====================
 local playerGui = LocalPlayer:WaitForChild("PlayerGui")
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "TrueChillGuys_v4_Full"
+screenGui.Name = "TrueChillGuys_v4.3"
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 screenGui.DisplayOrder = 9999
@@ -429,7 +428,7 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, -100, 1, 0)
 titleLabel.Position = UDim2.new(0, 15, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "True Chill Guys Hub v4.2"
+titleLabel.Text = "True Chill Guys Hub v4.3"
 titleLabel.TextColor3 = theme.accent
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextSize = 14
@@ -453,7 +452,6 @@ closeBtn.MouseButton1Click:Connect(function()
 	mainFrame.Visible = isVisible
 end)
 
--- Sidebar Tabs
 local sidebar = Instance.new("Frame")
 sidebar.Size = UDim2.new(0, 130, 1, -54)
 sidebar.Position = UDim2.new(0, 10, 0, 48)
@@ -472,7 +470,6 @@ local sidePadding = Instance.new("UIPadding")
 sidePadding.PaddingTop = UDim.new(0, 8)
 sidePadding.Parent = sidebar
 
--- Content Holder
 local contentHolder = Instance.new("Frame")
 contentHolder.Size = UDim2.new(1, -155, 1, -54)
 contentHolder.Position = UDim2.new(0, 146, 0, 48)
@@ -586,7 +583,6 @@ local function createButtonToggle(parent, order, text, initialVal, callback)
 	end)
 end
 
--- FILL COMBAT TAB
 createButtonToggle(combatPage, 1, "Auto Block", Config.AutoBlock, function(v) Config.AutoBlock = v end)
 createButtonToggle(combatPage, 2, "Auto Parry", Config.AutoParry, function(v) Config.AutoParry = v end)
 createButtonToggle(combatPage, 3, "Supernova", Config.Supernova, function(v) Config.Supernova = v end)
@@ -594,7 +590,6 @@ createButtonToggle(combatPage, 4, "Auto Counter", Config.AutoCounter, function(v
 createButtonToggle(combatPage, 5, "Auto Down Punch", Config.AutoDownPunch, function(v) Config.AutoDownPunch = v end)
 createButtonToggle(combatPage, 6, "Auto Black Flash", Config.AutoBlackFlash, function(v) Config.AutoBlackFlash = v end)
 
--- FILL EXTRA TAB
 createButtonToggle(extraPage, 1, "Smart Camlock", Config.SmartCamlock, function(v) Config.SmartCamlock = v end)
 createButtonToggle(extraPage, 2, "Auto Nanami Ratio", Config.AutoRatio, function(v) Config.AutoRatio = v end)
 createButtonToggle(extraPage, 3, "Infinite Dash", Config.InfDash, function(v) Config.InfDash = v end)
@@ -604,10 +599,8 @@ createButtonToggle(extraPage, 6, "Yuki Aim", Config.YukiAim, function(v) Config.
 createButtonToggle(extraPage, 7, "Auto Aqating", Config.AutoAqating, function(v) Config.AutoAqating = v end)
 createButtonToggle(extraPage, 8, "Final Judgement Spam", Config.FinalJudgementSpam, function(v) Config.FinalJudgementSpam = v end)
 
--- FILL SETTINGS TAB
 createButtonToggle(settingsPage, 1, "ESP Enabled", Config.ESPEnabled, function(v) Config.ESPEnabled = v end)
 
--- FILL CREDIT TAB
 local creditLabel = Instance.new("TextLabel")
 creditLabel.Size = UDim2.new(1, -10, 0, 50)
 creditLabel.Position = UDim2.new(0, 5, 0, 15)
@@ -618,7 +611,6 @@ creditLabel.Font = Enum.Font.GothamBold
 creditLabel.TextSize = 14
 creditLabel.Parent = creditPage
 
--- Floating Menu Button (Mobile Friendly)
 local floatBtn = Instance.new("TextButton")
 floatBtn.Size = UDim2.new(0, 110, 0, 34)
 floatBtn.Position = UDim2.new(0.05, 0, 0.15, 0)
@@ -645,4 +637,4 @@ getgenv().TrueChillGuys_Unload = function()
 	getgenv().TrueChillGuys_Loaded = nil
 end
 
-print("True Chill Guys Hub v4.2 Full Features Loaded Successfully! 🟢")
+print("True Chill Guys Hub v4.3 Loaded Successfully! 🟢")
