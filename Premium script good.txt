@@ -1,9 +1,8 @@
--- [[ TRUE CHILL GUYS HUB v4.0 - ULTIMATE EDITION (FULL FIXED & OPTIMIZED) ]] --
+-- [[ TRUE CHILL GUYS HUB v4.2 - FULL FEATURES MOBILE SAFE ]] --
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
 
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
@@ -68,7 +67,7 @@ end)
 local activatedRE = blockRE and blockRE:WaitForChild("Activated", 5)
 local deactivatedRE = blockRE and blockRE:WaitForChild("Deactivated", 5)
 
--- ==================== 1. PUNCH DOWN (DOWNSLAM) ====================
+-- 1. PUNCH DOWN
 pcall(function()
 	local movesetService = ReplicatedStorage:WaitForChild("Knit", 5):WaitForChild("Knit", 5):WaitForChild("Services", 5):FindFirstChild((LocalPlayer:GetAttribute("Moveset") or "Default").."Service")
 	if movesetService and movesetService:FindFirstChild("RE") then
@@ -90,7 +89,7 @@ pcall(function()
 	end
 end)
 
--- ==================== 2. INFINITE DASH ====================
+-- 2. INFINITE DASH
 pcall(function()
 	local oldTick = tick
 	local fakeTime = oldTick()
@@ -103,7 +102,7 @@ pcall(function()
 	end)
 end)
 
--- ==================== 3. INFINITE JUMP ====================
+-- 3. INFINITE JUMP
 track(UserInputService.JumpRequest:Connect(function()
 	if Config.InfJump then
 		local char = LocalPlayer.Character
@@ -114,7 +113,7 @@ track(UserInputService.JumpRequest:Connect(function()
 	end
 end))
 
--- ==================== 4. AUTO NANAMI RATIO ====================
+-- 4. AUTO NANAMI RATIO
 pcall(function()
 	local nanami = ReplicatedStorage:FindFirstChild("Knit")
 	if nanami then
@@ -132,7 +131,7 @@ pcall(function()
 	end
 end)
 
--- ==================== 5. OPTIMIZED AUTO SKILL SPAM ====================
+-- 5. AUTO SKILL SPAM
 track(RunService.Heartbeat:Connect(function()
 	if Config.AutoBlackFlash then
 		pcall(function()
@@ -146,32 +145,7 @@ track(RunService.Heartbeat:Connect(function()
 	end
 end))
 
--- ==================== 6. INVISIBLE BLOCK ====================
-pcall(function()
-	local animMap = {
-		Default = "rbxassetid://101865783312435",
-		Gojo = "rbxassetid://104566923474227",
-		Mechamaru = "rbxassetid://118069379726477",
-		Nanami = "rbxassetid://99032134144831",
-	}
-	local function setupChar(char)
-		local humanoid = char:WaitForChild("Humanoid")
-		humanoid.AnimationPlayed:Connect(function(animTrack)
-			if not Config.InvisibleBlock then return end
-			local animID = animTrack.Animation.AnimationId
-			for _, idVal in pairs(animMap) do
-				if animID == idVal then
-					animTrack:Stop()
-					break
-				end
-			end
-		end)
-	end
-	if LocalPlayer.Character then setupChar(LocalPlayer.Character) end
-	LocalPlayer.CharacterAdded:Connect(setupChar)
-end)
-
--- ==================== 7. INSTANT BLACKHOLE ====================
+-- 7. INSTANT BLACKHOLE
 track(RunService.Heartbeat:Connect(function()
 	if Config.InstantBlackhole then
 		pcall(function()
@@ -183,7 +157,7 @@ track(RunService.Heartbeat:Connect(function()
 	end
 end))
 
--- ==================== 8. YUKI AIM ====================
+-- 8. YUKI AIM
 local function acharAlvoMaisProximoMaximo()
 	local char = LocalPlayer.Character
 	if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
@@ -228,7 +202,7 @@ track(RunService.RenderStepped:Connect(function()
 	end
 end))
 
--- ==================== 9. AUTO AQATING ====================
+-- 9. AUTO AQATING
 local lastAqatingDodge = 0
 local aqatingLocked = {}
 
@@ -267,7 +241,7 @@ track(RunService.Heartbeat:Connect(function()
 	end
 end))
 
--- ==================== 10. ESP & HITBOX ====================
+-- 10. ESP & HITBOX
 track(RunService.RenderStepped:Connect(function()
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p ~= LocalPlayer and p.Character then
@@ -299,7 +273,7 @@ track(RunService.RenderStepped:Connect(function()
 	end
 end))
 
--- ==================== 11. REMOTE MONITORING & COMBAT ====================
+-- 11. COMBAT REMOTES
 local function instantHardSnap(targetHRP)
 	if not targetHRP or not targetHRP.Parent then return end
 	local char = LocalPlayer.Character
@@ -389,7 +363,7 @@ for _, descendant in pairs(ReplicatedStorage:GetDescendants()) do
 end
 track(ReplicatedStorage.DescendantAdded:Connect(monitorRemote))
 
--- ==================== 12. INVISIBLE & NOCLIP ====================
+-- 12. INVISIBLE & NOCLIP
 track(RunService.RenderStepped:Connect(function()
 	local char = LocalPlayer.Character
 	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
@@ -403,14 +377,14 @@ track(RunService.RenderStepped:Connect(function()
 	end
 end))
 
--- ==================== 13. MODERN GUI (UI MENU) ====================
+-- ==================== FULL GUI MENU (TABS & MOBILE SAFE) ====================
+local playerGui = LocalPlayer:WaitForChild("PlayerGui")
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "TrueChillGuys_v4_GUI"
+screenGui.Name = "TrueChillGuys_v4_Full"
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 screenGui.DisplayOrder = 9999
-pcall(function() screenGui.Parent = CoreGui end)
-if not screenGui.Parent then screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+screenGui.Parent = playerGui
 
 local theme = {
 	bg = Color3.fromRGB(10, 14, 11),
@@ -436,8 +410,8 @@ local function applyStroke(inst, color)
 end
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 520, 0, 360)
-mainFrame.Position = UDim2.new(0.5, -260, 0.5, -180)
+mainFrame.Size = UDim2.new(0, 500, 0, 340)
+mainFrame.Position = UDim2.new(0.5, -250, 0.5, -170)
 mainFrame.BackgroundColor3 = theme.bg
 mainFrame.Active = true
 mainFrame.Draggable = true
@@ -446,16 +420,16 @@ applyCorner(mainFrame, 16)
 applyStroke(mainFrame, theme.accent)
 
 local topBar = Instance.new("Frame")
-topBar.Size = UDim2.new(1, 0, 0, 48)
+topBar.Size = UDim2.new(1, 0, 0, 44)
 topBar.BackgroundColor3 = theme.containerBg
 topBar.Parent = mainFrame
 applyCorner(topBar, 16)
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, -100, 1, 0)
-titleLabel.Position = UDim2.new(0, 18, 0, 0)
+titleLabel.Position = UDim2.new(0, 15, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "True Chill Guys Hub v4.0"
+titleLabel.Text = "True Chill Guys Hub v4.2"
 titleLabel.TextColor3 = theme.accent
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextSize = 14
@@ -463,13 +437,13 @@ titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Parent = topBar
 
 local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 32, 0, 32)
-closeBtn.Position = UDim2.new(1, -40, 0, 8)
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -38, 0, 7)
 closeBtn.BackgroundColor3 = theme.elementBg
 closeBtn.Text = "✕"
 closeBtn.TextColor3 = theme.text
 closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 14
+closeBtn.TextSize = 13
 closeBtn.Parent = topBar
 applyCorner(closeBtn, 8)
 
@@ -479,9 +453,10 @@ closeBtn.MouseButton1Click:Connect(function()
 	mainFrame.Visible = isVisible
 end)
 
+-- Sidebar Tabs
 local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0, 140, 1, -58)
-sidebar.Position = UDim2.new(0, 10, 0, 52)
+sidebar.Size = UDim2.new(0, 130, 1, -54)
+sidebar.Position = UDim2.new(0, 10, 0, 48)
 sidebar.BackgroundColor3 = theme.containerBg
 sidebar.Parent = mainFrame
 applyCorner(sidebar, 12)
@@ -494,12 +469,13 @@ sideLayout.Padding = UDim.new(0, 6)
 sideLayout.Parent = sidebar
 
 local sidePadding = Instance.new("UIPadding")
-sidePadding.PaddingTop = UDim.new(0, 10)
+sidePadding.PaddingTop = UDim.new(0, 8)
 sidePadding.Parent = sidebar
 
+-- Content Holder
 local contentHolder = Instance.new("Frame")
-contentHolder.Size = UDim2.new(1, -165, 1, -58)
-contentHolder.Position = UDim2.new(0, 156, 0, 52)
+contentHolder.Size = UDim2.new(1, -155, 1, -54)
+contentHolder.Position = UDim2.new(0, 146, 0, 48)
 contentHolder.BackgroundColor3 = theme.containerBg
 contentHolder.Parent = mainFrame
 applyCorner(contentHolder, 12)
@@ -531,7 +507,7 @@ combatPage.Visible = true
 local function createTabButton(name, order, targetPage)
 	local btn = Instance.new("TextButton")
 	btn.LayoutOrder = order
-	btn.Size = UDim2.new(1, -16, 0, 36)
+	btn.Size = UDim2.new(1, -14, 0, 34)
 	btn.BackgroundColor3 = (targetPage.Visible and theme.elementHover or theme.elementBg)
 	btn.Text = name
 	btn.TextColor3 = (targetPage.Visible and theme.accent or theme.text)
@@ -565,7 +541,7 @@ createTabButton("Credit", 4, creditPage)
 local function createButtonToggle(parent, order, text, initialVal, callback)
 	local container = Instance.new("Frame")
 	container.LayoutOrder = order
-	container.Size = UDim2.new(1, -4, 0, 38)
+	container.Size = UDim2.new(1, -4, 0, 36)
 	container.BackgroundColor3 = theme.elementBg
 	container.Parent = parent
 	applyCorner(container, 8)
@@ -610,7 +586,7 @@ local function createButtonToggle(parent, order, text, initialVal, callback)
 	end)
 end
 
--- Populate Tabs
+-- FILL COMBAT TAB
 createButtonToggle(combatPage, 1, "Auto Block", Config.AutoBlock, function(v) Config.AutoBlock = v end)
 createButtonToggle(combatPage, 2, "Auto Parry", Config.AutoParry, function(v) Config.AutoParry = v end)
 createButtonToggle(combatPage, 3, "Supernova", Config.Supernova, function(v) Config.Supernova = v end)
@@ -618,6 +594,7 @@ createButtonToggle(combatPage, 4, "Auto Counter", Config.AutoCounter, function(v
 createButtonToggle(combatPage, 5, "Auto Down Punch", Config.AutoDownPunch, function(v) Config.AutoDownPunch = v end)
 createButtonToggle(combatPage, 6, "Auto Black Flash", Config.AutoBlackFlash, function(v) Config.AutoBlackFlash = v end)
 
+-- FILL EXTRA TAB
 createButtonToggle(extraPage, 1, "Smart Camlock", Config.SmartCamlock, function(v) Config.SmartCamlock = v end)
 createButtonToggle(extraPage, 2, "Auto Nanami Ratio", Config.AutoRatio, function(v) Config.AutoRatio = v end)
 createButtonToggle(extraPage, 3, "Infinite Dash", Config.InfDash, function(v) Config.InfDash = v end)
@@ -627,9 +604,10 @@ createButtonToggle(extraPage, 6, "Yuki Aim", Config.YukiAim, function(v) Config.
 createButtonToggle(extraPage, 7, "Auto Aqating", Config.AutoAqating, function(v) Config.AutoAqating = v end)
 createButtonToggle(extraPage, 8, "Final Judgement Spam", Config.FinalJudgementSpam, function(v) Config.FinalJudgementSpam = v end)
 
+-- FILL SETTINGS TAB
 createButtonToggle(settingsPage, 1, "ESP Enabled", Config.ESPEnabled, function(v) Config.ESPEnabled = v end)
 
--- Credit Tab Label
+-- FILL CREDIT TAB
 local creditLabel = Instance.new("TextLabel")
 creditLabel.Size = UDim2.new(1, -10, 0, 50)
 creditLabel.Position = UDim2.new(0, 5, 0, 15)
@@ -637,38 +615,34 @@ creditLabel.BackgroundTransparency = 1
 creditLabel.Text = "Made by True Chill Guys"
 creditLabel.TextColor3 = theme.text
 creditLabel.Font = Enum.Font.GothamBold
-creditLabel.TextSize = 15
+creditLabel.TextSize = 14
 creditLabel.Parent = creditPage
 
--- Floating Blackhole Button
+-- Floating Menu Button (Mobile Friendly)
 local floatBtn = Instance.new("TextButton")
-floatBtn.Size = UDim2.new(0, 150, 0, 38)
-floatBtn.Position = UDim2.new(0.05, 0, 0.8, 0)
+floatBtn.Size = UDim2.new(0, 110, 0, 34)
+floatBtn.Position = UDim2.new(0.05, 0, 0.15, 0)
 floatBtn.BackgroundColor3 = theme.containerBg
-floatBtn.Text = "Blackhole: OFF 🔴"
+floatBtn.Text = "MENU 🟢"
 floatBtn.TextColor3 = theme.text
 floatBtn.Font = Enum.Font.GothamBold
-floatBtn.TextSize = 11
+floatBtn.TextSize = 12
 floatBtn.Active = true
 floatBtn.Draggable = true
 floatBtn.Parent = screenGui
-applyCorner(floatBtn, 10)
+applyCorner(floatBtn, 8)
 applyStroke(floatBtn, theme.accent)
 
 floatBtn.MouseButton1Click:Connect(function()
-	Config.InstantBlackhole = not Config.InstantBlackhole
-	if Config.InstantBlackhole then
-		floatBtn.Text = "Blackhole: ON 🟢"
-	else
-		floatBtn.Text = "Blackhole: OFF 🔴"
-	end
+	isVisible = not isVisible
+	mainFrame.Visible = isVisible
 end)
 
 getgenv().TrueChillGuys_Unload = function()
 	for _, c in ipairs(connections) do pcall(function() c:Disconnect() end) end
 	table.clear(connections)
-	screenGui:Destroy()
+	if screenGui then screenGui:Destroy() end
 	getgenv().TrueChillGuys_Loaded = nil
 end
 
-print("True Chill Guys Hub v4.0 Ultimate Loaded Successfully! 🟢")
+print("True Chill Guys Hub v4.2 Full Features Loaded Successfully! 🟢")
