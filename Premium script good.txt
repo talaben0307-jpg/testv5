@@ -1,5 +1,5 @@
 -- [[
---   CPZ Menu / Universe Hub V5 (Optimized + Pretty Edition)
+--   CPZ Menu / Universe Hub V7.3 (Optimized + Pretty Edition)
 --]]
 
 local Players = game:GetService("Players")
@@ -1925,9 +1925,12 @@ local jjs = {
     UseRemote = true,
     HitGap = 0.33,
     IncludeNpc = true,
-    InfDashEnabled = false,
+    InfDashEnabled = true,   -- tự động bật mỗi lần mở script
     AutoFinalEnabled = false,
 }
+
+-- Token huỷ chain: bấm R sẽ tăng token, mọi chain đang chạy sẽ dừng lại
+local chainToken = 0
 
 pcall(function()
     local oldTick = tick
@@ -2010,7 +2013,7 @@ local function fireHit()
     return false
 end
 
-local function dashTo(myHrp, targetHrp, duration)
+local function dashTo(myHrp, targetHrp, duration, tok)
     local startPos = myHrp.Position
     local endPos = (targetHrp.CFrame * CFrame.new(0, 0, 4)).Position
     local delta = endPos - startPos
@@ -2026,6 +2029,7 @@ local function dashTo(myHrp, targetHrp, duration)
     while elapsed < duration do
         local dt = RunService.Heartbeat:Wait()
         elapsed += dt
+        if tok and tok ~= chainToken then break end -- bị R huỷ
         if not (myHrp.Parent and targetHrp.Parent) then break end
 
         local t = math.clamp(elapsed / duration, 0, 1)
@@ -2041,12 +2045,13 @@ local function dashTo(myHrp, targetHrp, duration)
     end
 end
 
-local function executeDashAndTiming()
+local function executeDashAndTiming(tok)
     local t0 = os.clock()
     local remoteOk = jjs.UseRemote and resolveDivergent() ~= nil
     local targetHrp, myHrp = nearestEnemyHrp(jjs.Range)
     if targetHrp and myHrp then
-        dashTo(myHrp, targetHrp, jjs.DashTime)
+        dashTo(myHrp, targetHrp, jjs.DashTime, tok)
+        if tok ~= chainToken then return end
         if remoteOk then
             local remain = jjs.HitGap - (os.clock() - t0)
             if remain > 0 then task.wait(remain) end
@@ -2056,25 +2061,28 @@ local function executeDashAndTiming()
     else
         task.wait(remoteOk and jjs.HitGap or jjs.BfDelay)
     end
+    if tok ~= chainToken then return end -- bị R huỷ thì không đánh nữa
     fireHit()
 end
 
-local function oneTapBlackflash()
+local function oneTapBlackflash(tok)
     local remoteOk = jjs.UseRemote and resolveDivergent() ~= nil
     if not remoteOk then
         pressKey(Enum.KeyCode.Three)
         task.wait(0.05)
-        executeDashAndTiming()
+        executeDashAndTiming(tok)
         return
     end
     local t0 = os.clock()
     fireHit()
     local targetHrp, myHrp = nearestEnemyHrp(jjs.Range)
     if targetHrp and myHrp then
-        dashTo(myHrp, targetHrp, jjs.DashTime)
+        dashTo(myHrp, targetHrp, jjs.DashTime, tok)
     end
+    if tok ~= chainToken then return end
     local remain = jjs.HitGap - (os.clock() - t0)
     if remain > 0 then task.wait(remain) end
+    if tok ~= chainToken then return end
     fireHit()
 end
 
@@ -2085,24 +2093,38 @@ local chainBusy = false
 local function triggerChain()
     if chainBusy or not chainMode then return end
     chainBusy = true
+    chainToken += 1
+    local tok = chainToken
     task.spawn(function()
         pcall(function()
             if chainMode == "dash" then
-                executeDashAndTiming()
+                executeDashAndTiming(tok)
             else
                 task.wait(jjs.BfDelay)
-                fireHit()
+                if tok == chainToken then fireHit() end
             end
         end)
         task.wait(0.5)
-        chainBusy = false
+        if tok == chainToken then chainBusy = false end
     end)
+end
+
+local function cancelChain()
+    chainToken += 1
+    chainBusy = false
 end
 
 track(UserInputService.InputBegan:Connect(function(input)
     if input.KeyCode ~= Enum.KeyCode.Three or not chainMode then return end
     if UserInputService:GetFocusedTextBox() then return end
     triggerChain()
+end))
+
+-- Bấm R: dừng toàn bộ chain đang chạy (phím 3 vẫn dùng bình thường sau đó)
+track(UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode ~= Enum.KeyCode.R then return end
+    if UserInputService:GetFocusedTextBox() then return end
+    cancelChain()
 end))
 
 local slotConns = {}
@@ -2164,14 +2186,16 @@ end))
 MacroBtn.MouseButton1Click:Connect(function()
     if macroBtnDragged() or chainBusy then return end
     chainBusy = true
+    chainToken += 1
+    local tok = chainToken
     tween(MacroBtn, 0.1, { BackgroundColor3 = Theme.AccentDim })
     task.delay(0.2, function()
         tween(MacroBtn, 0.1, { BackgroundColor3 = Color3.fromRGB(20, 20, 28) })
     end)
     task.spawn(function()
-        pcall(oneTapBlackflash)
+        pcall(oneTapBlackflash, tok)
         task.wait(0.5)
-        chainBusy = false
+        if tok == chainToken then chainBusy = false end
     end)
 end)
 
@@ -2372,7 +2396,7 @@ end
 
 local Window = Library:CreateWindow({
     Title = "CPZ Menu",
-    SubTitle = "V5.5 Pro",
+    SubTitle = "V7.3 Pro",
     Key = "0946",
     MenuKey = Enum.KeyCode.F,
     OnUnlock = function() OverlayGui.Enabled = true end,
@@ -2449,7 +2473,7 @@ addLoaders(tJJS, {
 tJJS:AddSection("Infinite Dash & Auto Final")
 tJJS:AddToggle({
     Title = "Bật Infinite Dash",
-    Default = false,
+    Default = true, -- tự động bật
     Callback = function(v)
         jjs.InfDashEnabled = v
     end,
@@ -2484,7 +2508,7 @@ tJJS:AddSlider({
 
 tJJS:AddSection("Blackflash Chain")
 dashToggle = tJJS:AddToggle({
-    Title = "Bật Dash Chain (phím 3)",
+    Title = "Bật Dash Chain (phím 3, R để dừng)",
     Default = false,
     Callback = function(state)
         if state then
